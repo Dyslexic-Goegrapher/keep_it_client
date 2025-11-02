@@ -1,91 +1,113 @@
-import { useState, useEffect, useRef } from 'react';
-import { Platform, Text, View, StyleSheet } from 'react-native';
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Button, Linking, Platform, StyleSheet, Text, View } from "react-native";
 
-import * as Device from 'expo-device';
+import * as Device from "expo-device";
 
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
+import { Float } from "react-native/Libraries/Types/CodegenTypes";
 
 export default function App() {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [historicItems, setHistoricItems] = useState<any[]>([]);
-  const [isTracking, setIsTracking] = useState<boolean>(false);
-  const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+  const [naamHistorischObject, setnaamHistorischObject] = useState<string>('Geen historisch object gevonden');
+  const [urlHistorischObject, seturlHistorischObject] = useState<string>('');
+  const [adresHistorischObject, setadresHistorischObject] = useState<string>('Geen adres gevonden');
+  const [locationSet, setLocationTracking] = useState<boolean>(false);
 
-  useEffect(() => {
+  type OpenURLButtonProps = {
+    url: string;
+    children: string;
+  };
+
+  const OpenURLButton = ({url, children}: OpenURLButtonProps) => {
+    const handlePress = useCallback(async () => {
+      // Checking if the link is supported for links with custom URL scheme.
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+        // by some browser in the mobile
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(`Deze URL werkt niet: ${url}`);
+      }
+    }, [url]);
+
+    return <Button title={children} onPress={handlePress} />;
+  };
+
+  async function startInfoDisplay(x: string, y: string) {
+      const bboxBuffer: Float = 0.001;
+      const historicItemsUrl = `https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ogc/features/v1/collections/lu:lu_wet_bk_el_pub/items?bbox=${parseFloat(x) - bboxBuffer},${parseFloat(y) - bboxBuffer},${parseFloat(x) + bboxBuffer},${parseFloat(y) + bboxBuffer}`;
+      const historicItemsResponse = await fetch(historicItemsUrl);
+      const historicItemsResponseData = await historicItemsResponse.json();
+      console.log(historicItemsResponseData.features[0]?.properties || {});
+      setnaamHistorischObject(historicItemsResponseData.features[0]?.properties?.naam || 'Nog geen naam gevonden');
+      seturlHistorischObject(historicItemsResponseData.features[0]?.properties?.url || 'Nog geen url gevonden');
+      setadresHistorischObject(historicItemsResponseData.features[0]?.properties?.locatie || 'Nog geen adres gevonden');
+    };
+  
     async function startLocationTracking() {
-      if (Platform.OS === 'android' && !Device.isDevice) {
+      if (Platform.OS === "android" && !Device.isDevice) {
         setErrorMsg(
-          'Oops, this will not work on Snack in an Android Emulator. Try it on your device!'
+          "Oops, this will not work on Snack in an Android Emulator. Try it on your device!",
         );
         return;
       }
-      
+
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Toegang tot locatie werd geweigerd");
         return;
       }
 
       // Start continuous location tracking
-      locationSubscription.current = await Location.watchPositionAsync(
+      await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
           timeInterval: 1000, // Update every 1 second
           distanceInterval: 1, // Update every 1 meter
         },
         (newLocation) => {
-          setLocation(newLocation);
-          setIsTracking(true);
-        }
+          if (newLocation?.coords?.longitude && newLocation?.coords?.latitude) {
+            setLocationTracking(true);
+            startInfoDisplay(
+              newLocation.coords.longitude.toFixed(6),
+              newLocation.coords.latitude.toFixed(6)
+            );
+          }
+        },
       );
     }
 
 
-    async function startInfoDisplay(x: string, y: string) {
-      const bboxBuffer = 0.001;
-      const historicItemsUrl = `https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ogc/features/v1/collections/lu:lu_wet_bk_el_pub/items?bbox=${parseFloat(x)-bboxBuffer},${parseFloat(y)-bboxBuffer},${parseFloat(x)+bboxBuffer},${parseFloat(y)+bboxBuffer}`;
-      const historicItemsResponse = await fetch(historicItemsUrl);
-      const historicItems = await historicItemsResponse.json();
-      const historicItemsFeatures = historicItems.features;
-      // console.log(historicItems);
-      // console.log(historicItemsFeatures);
-      console.log(historicItemsFeatures);
-      console.log(historicItemsFeatures.length);
-      setHistoricItems(historicItems.features[0].properties);
-    }
-
+  useEffect(() => {
+    
     startLocationTracking();
-    startInfoDisplay(location?.coords.longitude?.toFixed(6) || '0', location?.coords.latitude?.toFixed(6) || '0');
-
     // Cleanup function to stop location tracking when component unmounts
     return () => {
-      if (locationSubscription.current) {
-        locationSubscription.current.remove();
-        setIsTracking(false);
-      }
+      setLocationTracking(false);
+      console.log("Locatie wordt niet meer gevolgd");
     };
   }, []);
 
-  let text = 'Waiting for location...';
+  let text = "Wachtend op info historisch object";
+  let url = "Wachtend op url historisch object";
+  let naamObject = "Wachtend op naam historisch object";
   if (errorMsg) {
     text = errorMsg;
-  } else if (location) {
-    text = `Uitleg: ${historicItems?.naam}\nLocatie: ${historicItems?.locatie}\n URL: ${historicItems?.url}`;
+  } else if (locationSet) {
+    text = `Locatie: ${adresHistorischObject}`;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Location Tracker</Text>
-      <Text style={styles.status}>
-        Status: {isTracking ? '🟢 Tracking' : '🔴 Not Tracking'}
-      </Text>
+      <Text style={styles.title}>Historisch object</Text>
+      <OpenURLButton url={urlHistorischObject}>{naamHistorischObject}</OpenURLButton>
+      <Text></Text>
       <Text style={styles.paragraph}>{text}</Text>
-      {location && (
-        <Text style={styles.timestamp}>
-          Last updated: {new Date(location.timestamp).toLocaleTimeString()}
-        </Text>
-      )}
+      <Text style={styles.status}>
+        Status: {locationSet ? "🟢 Locatie is geweten" : "🔴 Locatie zoeken"}
+      </Text>
     </View>
   );
 }
@@ -93,35 +115,35 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
+    textAlign: "center",
+    color: "#333",
   },
   status: {
     fontSize: 16,
     marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: '600',
+    textAlign: "center",
+    fontWeight: "600",
   },
   paragraph: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
-    color: '#666',
+    color: "#666",
     marginBottom: 10,
   },
   timestamp: {
     fontSize: 14,
-    textAlign: 'center',
-    color: '#888',
-    fontStyle: 'italic',
+    textAlign: "center",
+    color: "#888",
+    fontStyle: "italic",
   },
 });
