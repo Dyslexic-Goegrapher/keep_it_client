@@ -13,7 +13,7 @@ import {
   Text,
   View,
 } from "react-native";
-
+// test
 import * as Device from "expo-device";
 
 import * as Location from "expo-location";
