@@ -1,7 +1,7 @@
 import { bbox } from "@turf/bbox";
 import { buffer } from "@turf/buffer";
 import { centroid } from "@turf/centroid";
-import { AllGeoJSON, point, feature, featureCollection } from "@turf/helpers";
+import { AllGeoJSON, point, featureCollection } from "@turf/helpers";
 import { nearestPoint } from "@turf/nearest-point";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -25,13 +25,9 @@ export default function App() {
   );
   const [urlHistorischObject, seturlHistorischObject] = useState<string>("");
   const [adresHistorischObject, setadresHistorischObject] = useState<string>(
-    "Geen adres gevonden",
+    "Nog geen adresgegevens gevonden.",
   );
   const [locationSet, setLocationTracking] = useState<boolean>(false);
-  const [historicImageUrl, setHistoricImageUrl] = useState<string>(
-    "https://beeldbank.onroerenderfgoed.be/images/000000/content/square",
-  );
-
   interface OpenURLButtonProps {
     url: string;
     children: string;
@@ -80,36 +76,35 @@ export default function App() {
   async function startInfoDisplay(x: string, y: string) {
     const currentLocationArray: number[] = [parseFloat(x), parseFloat(y)];
     const currentLocation = point(currentLocationArray);
-    const searchRegion: AllGeoJSON = buffer(currentLocation, 200, {
+    const searchRegion: AllGeoJSON | undefined = buffer(currentLocation, 200, {
       units: "meters",
     });
-    const [minX, minY, maxX, maxY] = bbox(searchRegion);
-    const historicItemsUrl = `https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ogc/features/v1/collections/lu:lu_wet_bk_el_pub/items?bbox=${minX},${minY},${maxX},${maxY}`;
-    const historicItemsResponse = await fetch(historicItemsUrl);
-    console.log(historicItemsResponse);
-    const historicItemsResponseData: HistoricItemsData =
-      await historicItemsResponse.json();
-    const historicPointFeatures = historicItemsResponseData.features.map(
-      (featureToMap) =>
-        centroid(featureToMap, {
-          properties: featureToMap.properties,
-        }),
-    );
-    console.log(historicItemsResponseData);
-    const closestFeature: AllGeoJSON = nearestPoint(
-      currentLocation,
-      featureCollection(historicPointFeatures),
-    );
-    const historicImageResponse = await fetch(
-      `https://beeldbank.onroerenderfgoed.be/images?sort=type&erfgoedobject=${closestFeature.properties?.url}`,
-    );
-    console.log(JSON.stringify(historicImageResponse, null, 2));
-    setHistoricImageUrl(
-      `https://beeldbank.onroerenderfgoed.be/images?sort=type&erfgoedobject=${closestFeature.properties?.url}`,
-    );
-    setnaamHistorischObject(closestFeature?.properties?.naam);
-    seturlHistorischObject(closestFeature?.properties?.url);
-    setadresHistorischObject(closestFeature?.properties?.locatie);
+    if (searchRegion) {
+      const [minX, minY, maxX, maxY] = bbox(searchRegion);
+      const historicItemsUrl = `https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ogc/features/v1/collections/lu:lu_wet_bk_el_pub/items?bbox=${minX},${minY},${maxX},${maxY}`;
+      const historicItemsResponse = await fetch(historicItemsUrl);
+      console.log(historicItemsResponse);
+      const historicItemsResponseData: HistoricItemsData =
+        await historicItemsResponse.json();
+      const historicPointFeatures = historicItemsResponseData.features.map(
+        (featureToMap) =>
+          centroid(featureToMap, {
+            properties: featureToMap.properties,
+          }),
+      );
+      console.log(historicItemsResponseData);
+      const closestFeature: AllGeoJSON = nearestPoint(
+        currentLocation,
+        featureCollection(historicPointFeatures),
+      );
+      const historicImageResponse = await fetch(
+        `https://beeldbank.onroerenderfgoed.be/images?sort=type&erfgoedobject=${closestFeature.properties?.url}`,
+      );
+      console.log(JSON.stringify(historicImageResponse, null, 2));
+      setnaamHistorischObject(closestFeature?.properties?.naam);
+      seturlHistorischObject(closestFeature?.properties?.url);
+      setadresHistorischObject(closestFeature?.properties?.locatie);
+    }
   }
 
   async function startLocationTracking() {
@@ -126,12 +121,11 @@ export default function App() {
       return;
     }
 
-    // Start continuous location tracking
     await Location.watchPositionAsync(
       {
         accuracy: Location.Accuracy.High,
-        timeInterval: 1000, // Update every 1 second
-        distanceInterval: 10, // Update every 1 meter
+        timeInterval: 1000,
+        distanceInterval: 10,
       },
       (newLocation) => {
         if (newLocation?.coords?.longitude && newLocation?.coords?.latitude) {
@@ -154,13 +148,13 @@ export default function App() {
     };
   }, []);
 
-  let text = "Wachtend op info historisch object";
-  let url = "Wachtend op url historisch object";
-  let naamObject = "Wachtend op naam historisch object";
+  let text = "Nog geen adresgegevens gevonden.";
   if (errorMsg) {
     text = errorMsg;
   } else if (locationSet) {
     text = `${adresHistorischObject}`;
+  } else {
+    text = "Locatie werd niet gevonden.";
   }
 
   return (
