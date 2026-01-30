@@ -1,0 +1,1 @@
+import infoDisplay from "./infoDisplay";

@@ -6,18 +6,29 @@
   "build": {
     "development": {
       "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "development"
+      },
+      "android": {
+        "gradleCommand": ":app:assembleDevelopmentDebug"
+      }
+    },
+    "preview": {
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "gradleCommand": ":app:bundleProductionRelease"
+      }
     },
     "development-simulator": {
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "simulator": true
-      },
-      "environment": "development"
+      }
     }
   },
   "submit": {
