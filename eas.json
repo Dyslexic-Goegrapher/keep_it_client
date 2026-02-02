@@ -9,9 +9,6 @@
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "development"
-      },
-      "android": {
-        "gradleCommand": ":app:assembleDevelopmentDebug"
       }
     },
     "preview": {
