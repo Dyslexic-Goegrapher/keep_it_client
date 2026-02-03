@@ -9,12 +9,6 @@
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "development"
-<<<<<<< HEAD
-=======
-      },
-      "android": {
-        "gradleCommand": ":app:assembleDevelopmentDebug"
->>>>>>> 16426e9 (Try agent branches)
       }
     },
     "preview": {
