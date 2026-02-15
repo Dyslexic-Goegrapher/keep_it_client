@@ -1,33 +1,6 @@
 import { useCallback } from "react";
 import { Alert, Text, Linking, Button } from "react-native";
-
-interface HistoricItemsData {
-  type: string;
-  features: [
-    {
-      type: string;
-      id: string;
-      geometry: {
-        type: string;
-        coordinates: [number, number];
-      };
-      geometry_name: string;
-      properties: {
-        erfgoed_id: number;
-        naam: string;
-        uri: string;
-        url: string;
-        locatie: string;
-        dataverant: string;
-      };
-    },
-  ];
-}
-
-interface OpenURLButtonProps {
-  url: string;
-  children: string;
-}
+import { OpenURLButtonProps, HistoricItemsData } from "./types";
 
 /**
  *
@@ -35,28 +8,6 @@ interface OpenURLButtonProps {
  * @returns
  */
 export default function HistoricItem(historicData: HistoricItemsData) {
-  const historicItem: HistoricItemsData = {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        id: "1",
-        geometry: {
-          type: "Point",
-          coordinates: [5.123456, 52.345678],
-        },
-        geometry_name: "geometry",
-        properties: {
-          erfgoed_id: 1,
-          naam: "Historic Object 1",
-          uri: "https://example.com/object1",
-          url: "https://example.com/object1",
-          locatie: "Location 1",
-          dataverant: "Owner 1",
-        },
-      },
-    ],
-  };
   const OpenURLButton = ({ url, children }: OpenURLButtonProps) => {
     const handlePress = useCallback(async () => {
       // Checking if the link is supported for links with custom URL scheme.
@@ -76,10 +27,10 @@ export default function HistoricItem(historicData: HistoricItemsData) {
 
   return (
     <>
-      <OpenURLButton url={historicItem.features[0].properties.url}>
-        {historicItem.features[0].properties.naam}
+      <OpenURLButton url={historicData.features[0].properties.url}>
+        {historicData.features[0].properties.naam}
       </OpenURLButton>
-      <Text>{historicItem.features[0].properties.naam}</Text>
+      <Text>{historicData.features[0].properties.naam}</Text>
     </>
   );
 }
