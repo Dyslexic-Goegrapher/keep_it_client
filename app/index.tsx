@@ -1,18 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  Linking,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import HistoricItem from "./historisch_object";
-// import InfoDisplay from "./infoDisplay";
+import { useEffect, useState } from "react";
+import { Platform, StyleSheet, View, Text } from "react-native";
+import { HistoricItemsData } from "./types";
 import * as Device from "expo-device";
 
 import * as Location from "expo-location";
+import LocationInfo from "./locationInfo";
+import { AllGeoJSON } from "@turf/helpers";
 
 export default function App() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -41,15 +34,15 @@ export default function App() {
       (newLocation) => {
         if (newLocation?.coords?.longitude && newLocation?.coords?.latitude) {
           setLocationTracking(true);
-          InfoDisplay(
-            newLocation.coords.longitude.toFixed(6),
-            newLocation.coords.latitude.toFixed(6),
+          const historicInfo: HistoricItemsData = LocationInfo(
+            newLocation!.coords.longitude,
+            newLocation!.coords.latitude,
           );
+          console.log(historicInfo);
         }
       },
     );
   }
-
   useEffect(() => {
     startLocationTracking();
     // Cleanup function to stop location tracking when component unmounts
@@ -65,7 +58,8 @@ export default function App() {
         {naamHistorischObject}*/}
       {/*</OpenURLButton>
       <Text />*/}
-      <HistoricItem {}></HistoricItem>
+      <Text>Het werkt</Text>
+      {/*<HistoricItem {}></HistoricItem>*/}
       {/*<Text style={styles.paragraph}>Locatie: {text}</Text>*/}
     </View>
   );
