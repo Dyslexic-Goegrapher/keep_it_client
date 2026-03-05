@@ -1,14 +1,15 @@
 import { useCallback } from "react";
 import { Alert, Text, Linking, Button } from "react-native";
-import { OpenURLButtonProps, HistoricItemsData } from "./types";
+
+import { HistoricData } from "./types";
 
 /**
  *
  * @param historicData
  * @returns
  */
-export default function HistoricItem(historicData: HistoricItemsData) {
-  const OpenURLButton = ({ url, children }: OpenURLButtonProps) => {
+export default function HistoricItem({ historicData }: { historicData: HistoricData }) {
+  const OpenURLButton = ({ url, children }: { url: string; children: string }) => {
     const handlePress = useCallback(async () => {
       // Checking if the link is supported for links with custom URL scheme.
       const supported = await Linking.canOpenURL(url);
@@ -27,10 +28,10 @@ export default function HistoricItem(historicData: HistoricItemsData) {
 
   return (
     <>
-      <OpenURLButton url={historicData.features[0].properties.url}>
-        {historicData.features[0].properties.naam}
+      <OpenURLButton url={historicData.properties.url}>
+        {historicData.properties.naam}
       </OpenURLButton>
-      <Text>{historicData.features[0].properties.naam}</Text>
+      <Text>{historicData.properties.naam}</Text>
     </>
   );
 }
