@@ -3,8 +3,8 @@ import { Platform } from "react-native";
 import * as Device from "expo-device";
 import * as Location from "expo-location";
 
-import { useHistoricData } from "./useHistoricData";
-import { HistoricInfoDisplay } from "./HistoricInfoDisplay";
+import useHistoricData from "./useHistoricData";
+import HistoricInfoDisplay  from "./HistoricInfoDisplay";
 
 export default function App() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);

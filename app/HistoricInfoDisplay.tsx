@@ -22,7 +22,7 @@ interface HistoricInfoDisplayProps {
   locationSet: boolean;
 }
 
-export function HistoricInfoDisplay({
+export default function HistoricInfoDisplay({
   historicData,
   errorMsg,
   locationSet,
@@ -65,11 +65,11 @@ export function HistoricInfoDisplay({
           <View style={[styles.corner, styles.cornerTopRight]} />
           <View style={[styles.corner, styles.cornerBottomLeft]} />
           <View style={[styles.corner, styles.cornerBottomRight]} />
-          
+
           {/* Header with vintage styling */}
           <View style={styles.header}>
             <View style={styles.dividerLine} />
-            <Text style={styles.headerText}>Historisch Monument</Text>
+            <Text style={styles.headerText}>Historisch Object</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -78,7 +78,7 @@ export function HistoricInfoDisplay({
             <OpenURLButton url={historicData.url}>
               {historicData.naam}
             </OpenURLButton>
-            
+
             <View style={styles.locationSection}>
               <Text style={styles.locationLabel}>Locatie</Text>
               <View style={styles.locationBox}>

@@ -40,7 +40,7 @@ const defaultData: HistoricData = {
   adres: "Nog geen adresgegevens gevonden.",
 };
 
-export function useHistoricData() {
+export default function useHistoricData() {
   const [historicData, setHistoricData] = useState<HistoricData>(defaultData);
 
   const fetchHistoricData = useCallback(async (x: string, y: string) => {
@@ -53,7 +53,6 @@ export function useHistoricData() {
       const [minX, minY, maxX, maxY] = bbox(searchRegion);
       const historicItemsUrl = `https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ogc/features/v1/collections/lu:lu_wet_bk_el_pub/items?bbox=${minX},${minY},${maxX},${maxY}`;
       const historicItemsResponse = await fetch(historicItemsUrl);
-      console.log(historicItemsResponse);
       const historicItemsResponseData: HistoricItemsData =
         await historicItemsResponse.json();
       const historicPointFeatures = historicItemsResponseData.features.map(
@@ -62,15 +61,10 @@ export function useHistoricData() {
             properties: featureToMap.properties,
           }),
       );
-      console.log(historicItemsResponseData);
       const closestFeature: AllGeoJSON = nearestPoint(
         currentLocation,
         featureCollection(historicPointFeatures),
       );
-      const historicImageResponse = await fetch(
-        `https://beeldbank.onroerenderfgoed.be/images?sort=type&erfgoedobject=${closestFeature.properties?.url}`,
-      );
-      console.log(JSON.stringify(historicImageResponse, null, 2));
       setHistoricData({
         naam: closestFeature?.properties?.naam,
         url: closestFeature?.properties?.url,
