@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { WebView } from "react-native-webview";
 
 import { HistoricData } from "./useHistoricData";
 
@@ -39,7 +40,11 @@ export default function HistoricInfoDisplay({
     }, [url]);
 
     return (
-      <TouchableOpacity style={styles.vintageButton} onPress={handlePress} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.vintageButton}
+        onPress={handlePress}
+        activeOpacity={0.8}
+      >
         <View style={styles.buttonInner}>
           <Text style={styles.buttonText}>{children}</Text>
         </View>
@@ -58,7 +63,10 @@ export default function HistoricInfoDisplay({
 
   return (
     <View style={styles.outerContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.parchment}>
           {/* Decorative corner ornaments */}
           <View style={[styles.corner, styles.cornerTopLeft]} />
@@ -92,6 +100,21 @@ export default function HistoricInfoDisplay({
             <Text style={styles.footerText}>✦ ✦ ✦</Text>
           </View>
         </View>
+
+        <WebView
+          scalesPageToFit={true}
+          bounces={false}
+          javaScriptEnabled
+          style={{ height: 500, width: 300 }}
+          source={{
+            html: `
+                    <iframe src="${historicData.url}"
+                                title="iframe Example 1" width="400" height="300">
+                    </iframe>
+                    `,
+          }}
+          automaticallyAdjustContentInsets={false}
+        />
       </ScrollView>
     </View>
   );
