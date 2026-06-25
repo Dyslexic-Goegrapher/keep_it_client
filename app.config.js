@@ -4,10 +4,10 @@ export default {
   name: IS_DEV ? "Keep_IT (Dev)" : "Keep_IT",
   slug: "Keep_IT",
   ios: {
-    bundleIdentifier: IS_DEV ? "com.keep_it.dev" : "com.keep_it",
+    bundleIdentifier: IS_DEV ? "com.keepit.dev" : "com.keepit",
   },
   android: {
-    package: IS_DEV ? "com.keep_it.dev" : "com.keep_it",
+    package: IS_DEV ? "com.keepit.dev" : "com.keepit",
   },
   extra: {
     eas: {
