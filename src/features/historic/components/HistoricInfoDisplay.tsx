@@ -1,17 +1,19 @@
 import { useCallback } from "react";
 import {
-  StyleSheet,
   Alert,
   Linking,
-  Text,
-  View,
-  TouchableOpacity,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
-import { HistoricData } from "./useHistoricData";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import type { HistoricData } from "@/features/historic/hooks/useHistoricData";
 
 interface OpenURLButtonProps {
   url: string;
@@ -36,8 +38,19 @@ const OpenURLButton = ({ url, children }: OpenURLButtonProps) => {
   }, [url]);
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
-      <View style={styles.containerHistoricItem}>
+    <TouchableOpacity
+      onPress={() => {
+        void handlePress();
+      }}
+      activeOpacity={0.8}
+      disabled={!url}
+    >
+      <View
+        style={[
+          styles.containerHistoricItem,
+          !url && styles.disabledHistoricItem,
+        ]}
+      >
         <Text style={styles.textButtonHistoricItem}>{children}</Text>
       </View>
     </TouchableOpacity>
@@ -50,60 +63,68 @@ export default function HistoricInfoDisplay({
   locationSet,
 }: HistoricInfoDisplayProps) {
   let adres = "";
+
   if (errorMsg) {
     adres = errorMsg;
   } else if (locationSet) {
-    adres = `${historicData.adres}`;
-  } else {
-    adres = "Locatie werd niet gevonden.";
+    adres = historicData.adres;
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView edges={["bottom"]} style={styles.safeArea}>
+      <ScrollView
+        contentContainerStyle={[styles.content, styles.container]}
+        showsVerticalScrollIndicator={false}
+      >
         <OpenURLButton url={historicData.url}>
           {historicData.naam}
         </OpenURLButton>
         <View>
-          <View>
+          {historicData.isLoading ? null : (
             <View style={styles.containerAdresHistoricItem}>
-              <Ionicons name="location-sharp" size={16} color="#626262" />
+              <Ionicons name="location-sharp" size={16} />
               <Text style={styles.textAdresHistoricItem}>{adres}</Text>
             </View>
-          </View>
+          )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
   container: {
     alignItems: "center",
     marginTop: 50,
   },
   textButtonHistoricItem: {
     fontFamily: "Arial",
-    color: "#626262",
     fontWeight: "bold",
     fontSize: 30,
+    textAlign: "center",
   },
   containerHistoricItem: {
-    backgroundColor: "#CFCFCF",
     alignItems: "center",
     padding: 20,
     borderRadius: 10,
   },
+  disabledHistoricItem: {
+    opacity: 0.6,
+  },
   textAdresHistoricItem: {
     fontFamily: "Arial",
-    color: "#626262",
     fontSize: 15,
   },
   containerAdresHistoricItem: {
     flexDirection: "row",
     gap: 4,
-  },
-  red: {
-    color: "red",
   },
 });
