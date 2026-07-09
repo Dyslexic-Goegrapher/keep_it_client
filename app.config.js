@@ -29,7 +29,7 @@ export default {
     [
       "expo-splash-screen",
       {
-        backgroundColor: "#208AEF",
+        backgroundColor: "#F7F7F7",
         image: "./assets/images/android-icon-foreground.png",
         resizeMode: "cover",
       },
