@@ -1,56 +1,19 @@
-import { useCallback } from "react";
-import {
-  Alert,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
+import { OpenURLButton } from "@/components/openUrlButton";
 import type { HistoricData } from "@/features/historic/hooks/useHistoricData";
-
-interface OpenURLButtonProps {
-  url: string;
-  children: string;
-}
+import { colors } from "@/themes/colors";
+import { sizes } from "@/themes/sizes";
+import { spacing } from "@/themes/spacing";
 
 interface HistoricInfoDisplayProps {
   historicData: HistoricData;
   errorMsg: string | null;
   locationSet: boolean;
 }
-
-const OpenURLButton = ({ url, children }: OpenURLButtonProps) => {
-  const handlePress = useCallback(async () => {
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(`Deze URL werkt niet: ${url}`);
-    }
-  }, [url]);
-
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        void handlePress();
-      }}
-      activeOpacity={0.8}
-      disabled={!url}
-    >
-      <View>
-        <Text>{children}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 export default function HistoricInfoDisplay({
   historicData,
@@ -66,16 +29,20 @@ export default function HistoricInfoDisplay({
   }
 
   return (
-    <SafeAreaView edges={["bottom"]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView edges={["bottom"]} style={styles.container}>
+      <ScrollView
+        style={styles.infoContainer}
+        contentContainerStyle={styles.infoContent}
+        showsVerticalScrollIndicator={false}
+      >
         <OpenURLButton url={historicData.url}>
           {historicData.naam}
         </OpenURLButton>
         <View>
           {historicData.isLoading ? null : (
-            <View>
-              <Ionicons name="location-sharp" size={16} />
-              <Text>{adres}</Text>
+            <View style={styles.adresContainer}>
+              <Ionicons name="location-sharp" size={sizes.sm} />
+              <Text style={styles.adresContent}>{adres}</Text>
             </View>
           )}
         </View>
@@ -84,4 +51,25 @@ export default function HistoricInfoDisplay({
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  infoContainer: {
+    backgroundColor: colors.grey50,
+  },
+  infoContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    fontFamily: "Arial",
+  },
+  adresContainer: {
+    flexDirection: "row",
+    fontSize: sizes.md,
+    padding: spacing.md,
+  },
+  adresContent: {
+    fontSize: sizes.sm,
+  },
+});
