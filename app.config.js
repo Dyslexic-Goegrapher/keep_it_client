@@ -34,5 +34,11 @@ export default {
         resizeMode: "cover",
       },
     ],
+    [
+      "expo-sensors",
+      {
+        motionPermissions: "Allow $(PRODUCT_NAME) to access your device motion",
+      },
+    ],
   ],
 };

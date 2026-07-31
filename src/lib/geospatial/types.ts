@@ -1,26 +1,10 @@
-export interface HistoricItem {
-  naam: string;
-  url: string;
-  adres: string;
-}
+type X = number;
+type Y = number;
+type Z = number;
+type T = number;
 
-export interface HistoricItemsData {
-  type: "FeatureCollection";
-  features: {
-    type: "Feature";
-    id: string;
-    geometry: {
-      type: "Point";
-      coordinates: [number, number];
-    };
-    geometry_name: string;
-    properties: {
-      erfgoed_id: number;
-      naam: string;
-      uri: string;
-      url: string;
-      locatie: string;
-      dataverant: string;
-    };
-  }[];
-}
+export type Point2D = [X, Y];
+
+export type Point3D = [X, Y, Z];
+
+export type Point4D = [X, Y, Z, T];

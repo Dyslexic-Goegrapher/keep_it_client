@@ -3,7 +3,12 @@ import * as Location from "expo-location";
 import { Platform } from "react-native";
 
 interface WatchForegroundLocationOptions {
-  onLocation: (coords: Pick<Location.LocationObjectCoords, "longitude" | "latitude" | "heading">) => void;
+  onLocation: (
+    coords: Pick<
+      Location.LocationObjectCoords,
+      "longitude" | "latitude" | "heading"
+    >,
+  ) => void;
   onError: (message: string) => void;
 }
 
@@ -28,10 +33,10 @@ export async function watchForegroundLocation({
   return Location.watchPositionAsync(
     {
       accuracy: Location.Accuracy.High,
-      timeInterval: 1000,
-      distanceInterval: 10,
+      timeInterval: 50,
     },
     (newLocation) => {
+      console.log(newLocation.timestamp);
       if (
         typeof newLocation?.coords?.longitude === "number" &&
         typeof newLocation?.coords?.latitude === "number"
