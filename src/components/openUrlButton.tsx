@@ -1,7 +1,6 @@
 import {
   Text,
   TouchableOpacity,
-  View,
   StyleSheet,
   Alert,
   Linking,
@@ -9,8 +8,6 @@ import {
 import { useCallback } from "react";
 import { sizes } from "@/themes/sizes";
 import { colors } from "@/themes/colors";
-import { radius } from "@/themes/radius";
-import { spacing } from "@/themes/spacing";
 
 interface OpenURLButtonProps {
   url: string;
@@ -36,21 +33,14 @@ export const OpenURLButton = ({ url, children }: OpenURLButtonProps) => {
       activeOpacity={0.8}
       disabled={!url}
     >
-      <View style={styles.titleContainer}>
-        <Text style={styles.titleContent}>{children}</Text>
-      </View>
+      <Text style={styles.titleContent}>{children}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   titleContent: {
-    fontSize: sizes.lg,
+    fontSize: sizes.sm,
     color: colors.blue,
-  },
-  titleContainer: {
-    borderRadius: radius.md,
-    backgroundColor: colors.grey100,
-    padding: spacing.md,
   },
 });

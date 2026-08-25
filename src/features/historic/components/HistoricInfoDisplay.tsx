@@ -1,15 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
-
 import { OpenURLButton } from "@/components/openUrlButton";
-import { sizes } from "@/themes/sizes";
+import { colors } from "@/themes/colors";
 import { spacing } from "@/themes/spacing";
 
 import type { HistoricItemProperties } from "../../../types/historic";
 
 interface HistoricInfoDisplayProps {
   historicData: HistoricItemProperties;
+  relativeAngle: number | null;
   errorMsg: string | null;
   locationSet: boolean;
 }
@@ -17,32 +16,28 @@ interface HistoricInfoDisplayProps {
 export default function HistoricInfoDisplay({
   historicData,
   errorMsg,
-  locationSet,
 }: HistoricInfoDisplayProps) {
   return (
-    <>
+    <View style={styles.container}>
       <OpenURLButton url={historicData.url}>
         {errorMsg ? errorMsg : historicData.naam}
       </OpenURLButton>
-      <View>
-        {historicData.locatie ? (
-          <View style={styles.adresContainer}>
-            <Ionicons name="location-sharp" size={sizes.sm} />
-            <Text style={styles.adresContent}>{historicData.locatie}</Text>
-          </View>
-        ) : null}
-      </View>
-    </>
+      {typeof historicData.distance === "number" ? (
+        <Text style={styles.distanceText}>
+          {`${Math.round(historicData.distance)} m`}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  adresContainer: {
-    flexDirection: "row",
-    fontSize: sizes.md,
-    padding: spacing.md,
+  container: {
+    alignItems: "center",
+    rowGap: spacing.xs,
   },
-  adresContent: {
-    fontSize: sizes.sm,
+  distanceText: {
+    color: colors.grey800,
+    fontSize: 12,
   },
 });
