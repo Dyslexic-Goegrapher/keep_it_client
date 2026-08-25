@@ -7,6 +7,7 @@ export type HistoricItemProperties = {
   url: string;
   locatie: string;
   dataverant: string;
+  distance?: number;
 };
 
 export type HistoricFeatureProperties = HistoricItemProperties & {

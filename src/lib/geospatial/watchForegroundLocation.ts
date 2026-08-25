@@ -33,10 +33,10 @@ export async function watchForegroundLocation({
   return Location.watchPositionAsync(
     {
       accuracy: Location.Accuracy.High,
-      timeInterval: 50,
+      timeInterval: 1000,
+      distanceInterval: 5,
     },
     (newLocation) => {
-      console.log(newLocation.timestamp);
       if (
         typeof newLocation?.coords?.longitude === "number" &&
         typeof newLocation?.coords?.latitude === "number"
